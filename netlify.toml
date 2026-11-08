@@ -1,0 +1,25 @@
+[build]
+  publish = "."
+
+[[redirects]]
+  from = "/:usuario"
+  to = "/index.html"
+  status = 200
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+[[headers]]
+  for = "/portal_admin.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow, noarchive"
+    Cache-Control = "no-store, max-age=0"
+
+[[headers]]
+  for = "/portal.html"
+  [headers.values]
+    Cache-Control = "no-store, max-age=0"

@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lempira Capital — Portal de Inversionista</title>
+<meta name="theme-color" content="#0a0a0c">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#0a0a0c; --bg2:#0d0d11; --panel:#121217; --panel2:#181820;
+  --line:#22222b; --line2:#2d2d38;
+  --gold:#d4af37; --gold2:#f0d379; --gold3:#8f7218;
+  --txt:#f3f2ef; --dim:#8d8d99; --dim2:#5f5f6b;
+  --ok:#3fbf7f; --warn:#e0a33d; --bad:#e05555;
+}
+body{background:var(--bg);color:var(--txt);
+  font-family:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  font-size:14.5px;line-height:1.6;-webkit-font-smoothing:antialiased}
+.serif{font-family:"Instrument Serif",Georgia,serif;font-weight:400}
+button,input,select{font-family:inherit}
+img{max-width:100%;display:block}
+
+#gate{min-height:100vh;display:grid;grid-template-columns:1fr}
+@media(min-width:940px){#gate{grid-template-columns:1fr 520px}}
+.gate-brand{display:none}
+@media(min-width:940px){
+  .gate-brand{display:flex;flex-direction:column;justify-content:space-between;padding:44px 52px;
+    background:
+      radial-gradient(70% 60% at 20% 0%,rgba(212,175,55,.13),transparent 62%),
+      linear-gradient(160deg,#0c0c10,#08080a);
+    border-right:1px solid var(--line)}
+}
+.gb-logo{display:flex;align-items:center;gap:12px}
+.mk{width:42px;height:42px;border-radius:9px;flex:none;background:#000;overflow:hidden;
+  border:1px solid rgba(212,175,55,.32);display:flex;align-items:center;justify-content:center;
+  box-shadow:0 6px 20px rgba(212,175,55,.22)}
+.mk img{width:100%;height:100%;object-fit:cover}
+.gb-logo b{display:block;font-size:14px;letter-spacing:.6px;font-weight:600}
+.gb-logo span{display:block;font-size:9px;color:var(--dim2);letter-spacing:2.6px;text-transform:uppercase;font-weight:600}
+.gb-mid h2{font-family:"Instrument Serif",serif;font-size:40px;line-height:1.1;margin-bottom:16px;letter-spacing:-.5px}
+.gb-mid h2 em{font-style:italic;color:var(--gold2)}
+.gb-mid p{font-size:14px;color:var(--dim);max-width:360px;line-height:1.7}
+.gb-foot{display:flex;gap:26px;font-size:10.5px;color:var(--dim2);letter-spacing:1.4px;text-transform:uppercase}
+.gate-form{padding:36px 22px 48px;display:flex;flex-direction:column;justify-content:center}
+@media(min-width:940px){.gate-form{padding:44px 52px}}
+.gf-inner{width:100%;max-width:400px;margin:0 auto}
+.gf-mob-logo{display:flex;align-items:center;gap:10px;margin-bottom:28px}
+@media(min-width:940px){.gf-mob-logo{display:none}}
+.gf-inner h1{font-family:"Instrument Serif",serif;font-size:31px;line-height:1.12;margin-bottom:8px}
+.gf-inner h1 em{font-style:italic;color:var(--gold2)}
+.gf-sub{font-size:12.5px;color:var(--dim);margin-bottom:24px}
+
+.fld{margin-bottom:12px}
+.fld label{display:block;font-size:9.5px;letter-spacing:1.4px;text-transform:uppercase;color:var(--dim);
+  margin-bottom:6px;font-weight:600}
+.fld input,.fld select{width:100%;padding:13px;border:1px solid var(--line);border-radius:8px;font-size:14.5px;
+  color:var(--txt);outline:none;background:#0e0e12;transition:.15s}
+.fld input:focus,.fld select:focus{border-color:var(--gold3);background:#131318;box-shadow:0 0 0 3px rgba(212,175,55,.09)}
+.fld input::placeholder{color:#4c4c57}
+.hint{font-size:10.5px;margin-top:5px;color:var(--dim2);min-height:13px}
+.hint.ok{color:var(--ok)} .hint.bad{color:var(--bad)}
+.btn{width:100%;padding:14px;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;
+  letter-spacing:1.3px;text-transform:uppercase;background:linear-gradient(135deg,#f0d379,#d4af37 52%,#a8861d);
+  color:#171204;box-shadow:0 10px 26px rgba(212,175,55,.18);transition:transform .1s}
+.btn:active{transform:scale(.988)}
+.btn:disabled{opacity:.55;box-shadow:none}
+.btn.ghost{background:transparent;border:1px solid var(--line2);color:var(--txt);box-shadow:none}
+.btn.ghost:active{background:var(--panel2)}
+.gf-sw{text-align:center;font-size:12px;color:var(--dim);margin-top:15px}
+.gf-sw b{color:var(--gold2);cursor:pointer;text-decoration:underline;text-underline-offset:3px;font-weight:600}
+.gf-note{font-size:10.5px;color:var(--dim2);text-align:center;margin-top:22px;line-height:1.7}
+
+#app{display:none}
+.shell{display:grid;grid-template-columns:1fr;min-height:100vh}
+@media(min-width:900px){.shell{grid-template-columns:248px 1fr}}
+
+.side{display:none}
+@media(min-width:900px){
+  .side{display:flex;flex-direction:column;position:sticky;top:0;height:100vh;
+    background:#0c0c10;border-right:1px solid var(--line);padding:26px 18px}
+}
+.side-logo{display:flex;align-items:center;gap:10px;margin-bottom:30px;padding:0 6px}
+.side-logo .mk{width:36px;height:36px;border-radius:8px}
+.side-logo b{display:block;font-size:13px;letter-spacing:.6px;font-weight:600}
+.side-logo span{display:block;font-size:8.5px;color:var(--dim2);letter-spacing:2.2px;text-transform:uppercase;font-weight:600}
+.side nav{display:flex;flex-direction:column;gap:2px;flex:1}
+.side nav button{display:flex;align-items:center;gap:11px;padding:10px 12px;border:none;border-radius:7px;
+  background:transparent;color:var(--dim);font-size:13px;font-weight:500;cursor:pointer;text-align:left;
+  letter-spacing:.2px;transition:.15s}
+.side nav button:hover{background:var(--panel);color:var(--txt)}
+.side nav button.on{background:rgba(212,175,55,.1);color:var(--gold2);box-shadow:inset 2px 0 0 var(--gold)}
+.side nav button i{font-style:normal;font-size:14px;width:16px;text-align:center;opacity:.9}
+.side-foot{border-top:1px solid var(--line);padding-top:14px;margin-top:14px}
+.side-user{display:flex;align-items:center;gap:10px;margin-bottom:12px;padding:0 4px}
+.side-user .av{width:32px;height:32px;border-radius:7px;background:linear-gradient(150deg,#33333e,#1c1c24);
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:var(--gold2);flex:none}
+.side-user b{display:block;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px}
+.side-user span{display:block;font-size:10px;color:var(--dim2)}
+
+.top{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:10px;
+  padding:16px 20px;background:rgba(10,10,12,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
+@media(min-width:900px){.top{padding:18px 30px}}
+.top h2{font-family:"Instrument Serif",serif;font-size:20px;flex:1;line-height:1.2}
+@media(min-width:900px){.top h2{font-size:23px}}
+.top .dot{width:7px;height:7px;border-radius:50%;background:var(--ok);flex:none;box-shadow:0 0 0 3px rgba(63,191,127,.15)}
+.top .dot.off{background:var(--dim2);box-shadow:none}
+.pill{display:inline-flex;align-items:center;padding:5px 11px;border-radius:20px;font-size:9px;font-weight:700;
+  letter-spacing:1.3px;text-transform:uppercase;border:1px solid transparent;white-space:nowrap}
+.pill.cuenta,.pill.proceso,.pill.comprobante{background:rgba(224,163,61,.11);color:var(--warn);border-color:rgba(224,163,61,.28)}
+.pill.incompleto,.pill.retenido,.pill.rechazado{background:rgba(224,85,85,.11);color:var(--bad);border-color:rgba(224,85,85,.28)}
+.pill.liberado,.pill.pagado{background:rgba(63,191,127,.11);color:var(--ok);border-color:rgba(63,191,127,.28)}
+.pill.dep{background:rgba(212,175,55,.14);color:var(--gold2);border-color:rgba(212,175,55,.36)}
+
+.content{padding:22px 20px 96px;max-width:1280px}
+@media(min-width:900px){.content{padding:28px 30px 60px}}
+.cols{display:grid;gap:18px;align-items:start}
+@media(min-width:1040px){.cols{grid-template-columns:1.12fr .88fr;gap:22px}}
+.col{display:grid;gap:18px}
+
+.balance{position:relative;overflow:hidden;border-radius:14px;padding:26px;
+  background:
+    radial-gradient(120% 140% at 84% 6%,rgba(255,255,255,.15),transparent 58%),
+    linear-gradient(135deg,#26262e 0%,#3a3a44 24%,#1f1f27 56%,#37373f 82%,#1b1b22 100%);
+  border:1px solid #43434d;box-shadow:0 20px 50px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.12)}
+.balance::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(104deg,transparent 36%,rgba(255,255,255,.1) 48%,transparent 61%)}
+.bal-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.bal-top span{font-size:9.5px;letter-spacing:2.4px;text-transform:uppercase;color:#b4b4c0;font-weight:600}
+.bal-tag{font-size:8.5px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;padding:4px 9px;
+  border-radius:20px;background:rgba(212,175,55,.14);color:var(--gold2);border:1px solid rgba(212,175,55,.34)}
+.bal-amt{font-family:"Instrument Serif",serif;font-size:44px;line-height:1;margin-bottom:6px;letter-spacing:-1px}
+.bal-amt small{font-size:18px;color:#c4c4ce;margin-right:6px;font-family:"Instrument Sans",sans-serif;font-weight:500}
+.bal-lbl{font-size:11.5px;color:#a2a2ae;margin-bottom:20px}
+.bal-actions{display:flex;gap:9px}
+.bal-actions button{flex:1;padding:11px;border-radius:7px;font-size:11px;font-weight:700;letter-spacing:.9px;
+  text-transform:uppercase;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.08);
+  color:#fff;cursor:pointer;backdrop-filter:blur(4px)}
+.bal-actions button:active{background:rgba(255,255,255,.15)}
+.bal-actions button.gold{background:rgba(212,175,55,.24);border-color:rgba(240,211,121,.55);color:#f6e6b4}
+
+.blk{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px}
+.blk-h{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:6px}
+.blk h3{font-family:"Instrument Serif",serif;font-size:18px;line-height:1.25}
+.blk .d{font-size:12.5px;color:var(--dim);margin-bottom:15px;line-height:1.65}
+.blk .d b{color:var(--gold2);font-weight:600}
+
+.chart-hd{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px}
+.chart-hd h3{font-family:"Instrument Serif",serif;font-size:18px}
+.chart-hd i{font-style:normal;font-size:12.5px;color:var(--ok);font-weight:700;letter-spacing:.4px}
+#chart{width:100%;height:150px;display:block;overflow:visible}
+.chart-ft{display:flex;justify-content:space-between;font-size:10px;color:var(--dim2);
+  padding-top:11px;margin-top:6px;border-top:1px solid var(--line);letter-spacing:.5px}
+
+.acct{border:1px solid var(--line);border-radius:9px;overflow:hidden;margin-bottom:15px;background:#0f0f14}
+.acct .r{display:flex;justify-content:space-between;align-items:center;padding:11px 13px;font-size:12.5px;
+  border-bottom:1px solid #1b1b22}
+.acct .r:last-child{border:none}
+.acct .r span{color:var(--dim)}
+.acct .r b{font-weight:600;letter-spacing:.4px;display:flex;align-items:center;gap:8px}
+.copy-s{padding:3px 8px;border-radius:5px;border:1px solid var(--gold3);background:rgba(212,175,55,.1);
+  color:var(--gold2);font-size:9px;font-weight:700;cursor:pointer;letter-spacing:.8px}
+
+.drop{border:1.5px dashed #2f2f39;border-radius:10px;padding:26px 16px;text-align:center;cursor:pointer;
+  background:#0e0e12;transition:.15s}
+.drop:active,.drop.hot{border-color:var(--gold3);background:#14141a}
+.drop .ic{font-size:22px;margin-bottom:8px;opacity:.75}
+.drop b{display:block;font-size:12.5px;margin-bottom:3px;font-weight:600}
+.drop span{font-size:11px;color:var(--dim2)}
+.prev{display:none;margin-top:12px;border-radius:9px;overflow:hidden;border:1px solid var(--line)}
+.prev img{width:100%;max-height:260px;object-fit:cover}
+.prev .rm{display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:var(--panel2);
+  font-size:11px;color:var(--dim)}
+.prev .rm button{background:none;border:none;color:var(--bad);font-weight:700;font-size:10.5px;cursor:pointer;letter-spacing:.6px}
+
+.mov{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:13px 0;border-bottom:1px solid #1b1b22}
+.mov:last-child{border:none}
+.mov .l b{display:block;font-size:13px;font-weight:500}
+.mov .l span{display:block;font-size:10.5px;color:var(--dim2);margin-top:2px}
+.mov .amt{font-size:13px;font-weight:600;white-space:nowrap;letter-spacing:.3px}
+.mov .amt.in{color:var(--ok)} .mov .amt.out{color:var(--dim)}
+.mov .amt.pend{color:var(--warn);font-size:11px;letter-spacing:.8px}
+
+.link-box{display:flex;align-items:center;gap:8px;background:#0f0f14;border:1px solid var(--line);
+  border-radius:9px;padding:12px;margin-bottom:16px}
+.link-box input{flex:1;background:none;border:none;color:var(--gold2);font-size:12.5px;outline:none;min-width:0}
+.link-box button{background:rgba(212,175,55,.12);border:1px solid var(--gold3);color:var(--gold2);
+  font-size:9.5px;font-weight:700;padding:8px 11px;border-radius:6px;cursor:pointer;letter-spacing:.9px;flex:none}
+.share{display:grid;gap:9px;margin-bottom:16px}
+@media(min-width:620px){.share{grid-template-columns:1fr 1fr}}
+.share button{display:flex;align-items:center;gap:11px;padding:13px;border-radius:9px;border:1px solid var(--line);
+  background:#0f0f14;color:var(--txt);font-size:12.5px;font-weight:600;cursor:pointer;text-align:left;transition:.15s}
+.share button:hover{background:var(--panel2);border-color:var(--line2)}
+.share .ic{width:30px;height:30px;border-radius:7px;display:flex;align-items:center;justify-content:center;
+  flex:none;font-size:14px;color:#fff}
+.share .wa{background:#1f8a4c}.share .fb{background:#2d5bce}
+.share .nv{background:linear-gradient(145deg,#f0d379,#b8952b);color:#171204}
+.share button small{display:block;font-size:10.5px;color:var(--dim2);font-weight:400;margin-top:1px}
+.bonus{display:flex;gap:14px;align-items:center;padding:15px;border-radius:9px;
+  background:linear-gradient(135deg,rgba(212,175,55,.11),rgba(212,175,55,.03));border:1px solid rgba(212,175,55,.24)}
+.bonus .n{font-family:"Instrument Serif",serif;font-size:26px;color:var(--gold2);line-height:1;white-space:nowrap}
+.bonus p{font-size:11.5px;color:var(--dim);line-height:1.55}
+
+.team-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #1b1b22}
+.team-row:last-child{border:none}
+.team-row .av{width:34px;height:34px;border-radius:7px;flex:none;display:flex;align-items:center;
+  justify-content:center;font-weight:700;font-size:12px;background:linear-gradient(150deg,#33333e,#1c1c24);color:var(--gold2)}
+.team-row .l{flex:1;min-width:0}
+.team-row .l b{display:block;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.team-row .l span{display:block;font-size:10.5px;color:var(--dim2)}
+.tag{font-size:8.5px;font-weight:700;letter-spacing:1.1px;padding:4px 9px;border-radius:20px;text-transform:uppercase}
+.tag.act{background:rgba(63,191,127,.12);color:var(--ok)}
+.tag.pen{background:rgba(141,141,153,.12);color:var(--dim)}
+.empty{text-align:center;padding:30px 14px;color:var(--dim2);font-size:12.5px}
+
+.pr{display:flex;justify-content:space-between;gap:14px;padding:13px 0;border-bottom:1px solid #1b1b22;font-size:13px}
+.pr:last-child{border:none}
+.pr span{color:var(--dim)} .pr b{font-weight:500;text-align:right}
+
+.mnav{position:fixed;bottom:0;left:0;right:0;z-index:50;display:grid;grid-template-columns:repeat(5,1fr);
+  background:rgba(11,11,14,.97);backdrop-filter:blur(16px);border-top:1px solid var(--line);
+  padding:7px 4px calc(7px + env(safe-area-inset-bottom))}
+@media(min-width:900px){.mnav{display:none}}
+.mnav button{background:none;border:none;color:var(--dim2);font-size:9px;font-weight:600;display:flex;
+  flex-direction:column;align-items:center;gap:3px;padding:6px 2px;cursor:pointer;letter-spacing:.3px}
+.mnav button .i{font-size:16px;line-height:1}
+.mnav button.on{color:var(--gold2)}
+
+.tab{display:none}
+.tab.on{display:block}
+
+#modal{position:fixed;inset:0;z-index:90;background:rgba(0,0,0,.86);backdrop-filter:blur(6px);
+  display:none;align-items:center;justify-content:center;padding:22px}
+#modal.on{display:flex}
+.mc{background:var(--panel);border:1px solid var(--line2);border-radius:14px;padding:24px;max-width:370px;width:100%}
+.mc h4{font-family:"Instrument Serif",serif;font-size:19px;margin-bottom:8px}
+.mc p{font-size:12.5px;color:var(--dim);margin-bottom:18px;line-height:1.7}
+#toast{position:fixed;bottom:96px;left:50%;transform:translate(-50%,16px);z-index:99;background:#f3f2ef;color:#0a0a0c;
+  padding:11px 18px;border-radius:22px;font-size:12px;font-weight:600;opacity:0;pointer-events:none;transition:.22s;
+  max-width:88vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+@media(min-width:900px){#toast{bottom:28px}}
+.spin{display:inline-block;width:12px;height:12px;border:2px solid rgba(23,18,4,.3);border-top-color:#171204;
+  border-radius:50%;animation:sp .7s linear infinite;vertical-align:-2px;margin-right:7px}
+@keyframes sp{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<section id="gate">
+  <div class="gate-brand">
+    <div class="gb-logo">
+      <div class="mk"><img src="logo.png" alt="Lempira Capital"></div>
+      <div><b>LEMPIRA CAPITAL</b><span>Honduras</span></div>
+    </div>
+    <div class="gb-mid">
+      <h2>Tu capital, <em>en ciclo</em> de 24 horas.</h2>
+      <p>Portal privado de inversionistas. Acá seguís el estado de tu cupo, el rendimiento acumulado y tus comprobantes.</p>
+    </div>
+    <div class="gb-foot"><span>Cupo mínimo L 20,000</span><span>Retiro verificado</span></div>
+  </div>
+
+  <div class="gate-form">
+    <div class="gf-inner">
+      <div class="gf-mob-logo">
+        <div class="mk"><img src="logo.png" alt="Lempira Capital"></div>
+        <div><b style="font-size:13px;letter-spacing:.6px">LEMPIRA CAPITAL</b>
+        <span style="display:block;font-size:8.5px;color:var(--dim2);letter-spacing:2.4px;text-transform:uppercase">Honduras</span></div>
+      </div>
+
+      <div id="g_reg">
+        <h1>Creá tu cuenta de <em>inversionista</em></h1>
+        <p class="gf-sub">Acceso al portal de cupo y rendimiento. Solo mayores de edad.</p>
+
+        <div class="fld"><label>Nombre completo</label>
+          <input id="g_nombre" type="text" placeholder="Ej. José Antonio Mejía" autocomplete="name"></div>
+        <div class="fld"><label>Teléfono / WhatsApp</label>
+          <input id="g_tel" type="tel" inputmode="numeric" placeholder="9999-9999"></div>
+        <div class="fld"><label>Correo electrónico</label>
+          <input id="g_correo" type="email" placeholder="tucorreo@correo.com" autocomplete="email"></div>
+        <div class="fld"><label>Nombre de usuario</label>
+          <input id="g_usuario" type="text" placeholder="ej. jmejia" autocapitalize="none" spellcheck="false">
+          <div class="hint" id="h_usuario">Tu enlace será lempiracapital.com/<b>usuario</b></div></div>
+        <div class="fld"><label>Contraseña</label>
+          <input id="g_clave" type="password" placeholder="Mínimo 6 caracteres" autocomplete="new-password"></div>
+
+        <button class="btn" id="btn_reg">Crear cuenta</button>
+        <p class="gf-sw">¿Ya tenés cuenta? <b id="go_log">Iniciá sesión</b></p>
+      </div>
+
+      <div id="g_log" style="display:none">
+        <h1>Ingresá a tu <em>portal</em></h1>
+        <p class="gf-sub">Usuario y contraseña de tu cuenta.</p>
+
+        <div class="fld"><label>Usuario</label>
+          <input id="l_usuario" type="text" placeholder="tu usuario" autocapitalize="none" spellcheck="false"></div>
+        <div class="fld"><label>Contraseña</label>
+          <input id="l_clave" type="password" placeholder="Tu contraseña" autocomplete="current-password"></div>
+
+        <button class="btn" id="btn_log">Ingresar</button>
+        <p class="gf-sw">¿Todavía no tenés cuenta? <b id="go_reg">Crear una</b></p>
+      </div>
+
+      <p class="gf-note">Lempira Capital · San Pedro Sula, Honduras<br>© 2026 Todos los derechos reservados</p>
+    </div>
+  </div>
+</section>
+
+<section id="app">
+<div class="shell">
+
+  <aside class="side">
+    <div class="side-logo">
+      <div class="mk"><img src="logo.png" alt="Lempira Capital"></div>
+      <div><b>LEMPIRA CAPITAL</b><span>Honduras</span></div>
+    </div>
+    <nav>
+      <button data-tab="inicio" class="on"><i>◎</i> Resumen</button>
+      <button data-tab="mov"><i>≡</i> Movimientos</button>
+      <button data-tab="ganar"><i>✦</i> Invitar y ganar</button>
+      <button data-tab="equipo"><i>◈</i> Mi equipo</button>
+      <button data-tab="perfil"><i>☰</i> Mi perfil</button>
+    </nav>
+    <div class="side-foot">
+      <div class="side-user">
+        <div class="av" id="s_av">—</div>
+        <div><b id="s_nombre">—</b><span id="s_usuario">@—</span></div>
+      </div>
+      <button class="btn ghost" id="btn_salir_d">Cerrar sesión</button>
+    </div>
+  </aside>
+
+  <div>
+    <header class="top">
+      <h2 id="t_titulo">Resumen</h2>
+      <div class="dot" id="t_dot"></div>
+      <div class="pill dep" id="p_dep" style="display:none">Depósito en verificación</div>
+      <div class="pill" id="e_pill">—</div>
+    </header>
+
+    <div class="content">
+
+      <div class="tab on" id="tab_inicio">
+        <div class="cols">
+          <div class="col">
+            <div class="balance">
+              <div class="bal-top"><span>Saldo disponible</span><div class="bal-tag" id="b_tag">—</div></div>
+              <div class="bal-amt serif"><small>L</small><span id="b_saldo">0.00</span></div>
+              <div class="bal-lbl" id="b_lbl">Cupo no activado</div>
+              <div class="bal-actions">
+                <button id="btn_retirar">Retirar</button>
+                <button class="gold" id="btn_depositar">Depositar</button>
+                <button id="btn_mov">Movimientos</button>
+              </div>
+            </div>
+
+            <div class="blk">
+              <div class="chart-hd"><h3>Rendimiento del cupo</h3><i id="ch_pct">+0.00%</i></div>
+              <svg id="chart" viewBox="0 0 600 150" preserveAspectRatio="none">
+                <defs><linearGradient id="gfill" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#d4af37" stop-opacity=".3"/>
+                  <stop offset="100%" stop-color="#d4af37" stop-opacity="0"/>
+                </linearGradient></defs>
+                <polyline id="ch_ghost" fill="none" stroke="#33333d" stroke-width="1.4"
+                  stroke-dasharray="5 5" stroke-linecap="round" points=""></polyline>
+                <path id="ch_area" fill="url(#gfill)" d=""></path>
+                <polyline id="ch_line" fill="none" stroke="#d4af37" stroke-width="2.2"
+                  stroke-linejoin="round" stroke-linecap="round" points=""></polyline>
+                <circle id="ch_dot" r="4" fill="#f0d379" stroke="#0a0a0c" stroke-width="2" cx="-20" cy="-20"></circle>
+              </svg>
+              <div class="chart-ft"><span id="ch_ini">Inicio —</span><span id="ch_fin">Cierre en 24 h</span></div>
+            </div>
+
+            <div class="blk">
+              <div class="blk-h"><h3>Estado del proceso</h3></div>
+              <p class="d" id="e_txt">—</p>
+              <button class="btn ghost" id="btn_asesor" style="display:none">Hablar con un asesor</button>
+            </div>
+          </div>
+
+          <div class="col">
+            <div class="blk" id="box_activar" style="display:none">
+              <h3>Activá tu cupo</h3>
+              <p class="d">Cupo mínimo <b>L 20,000.00</b>. Transferí a la cuenta indicada y subí el comprobante.</p>
+              <div class="acct">
+                <div class="r"><span>Banco</span><b id="cfg_banco">—</b></div>
+                <div class="r"><span>Tipo</span><b id="cfg_tipo">—</b></div>
+                <div class="r"><span>Número</span><b><span id="acc_num">—</span><button class="copy-s" data-c="acc_num">COPIAR</button></b></div>
+                <div class="r"><span>Titular</span><b id="cfg_titular">—</b></div>
+              </div>
+              <div class="fld"><label>Monto a depositar (L)</label>
+                <input id="a_monto" type="number" inputmode="decimal" placeholder="20000"></div>
+              <div class="fld"><label>Banco de origen</label>
+                <select id="a_banco">
+                  <option value="">Seleccioná tu banco</option>
+                  <option>BAC Credomatic</option><option>Banco Atlántida</option><option>Banpaís</option>
+                  <option>Banco de Occidente</option><option>Banrural</option><option>Ficohsa</option>
+                  <option>Banco Cuscatlán</option><option>Otro</option>
+                </select></div>
+              <div class="fld"><label>Número de referencia</label>
+                <input id="a_ref" type="text" placeholder="Referencia de la transacción"></div>
+            </div>
+
+            <div class="blk" id="box_subir" style="display:none">
+              <h3>Comprobante de transferencia</h3>
+              <p class="d">Foto o captura legible donde se vea el monto y la referencia.</p>
+              <div class="drop" id="drop">
+                <div class="ic">📄</div><b>Subir comprobante</b><span>Tocar para elegir o tomar foto</span>
+              </div>
+              <input id="file" type="file" accept="image/*" capture="environment" style="display:none">
+              <div class="prev" id="prev"><img id="prev_img" alt="">
+                <div class="rm"><span id="prev_nm">—</span><button id="prev_rm">QUITAR</button></div></div>
+              <button class="btn" id="btn_enviar" style="margin-top:14px;display:none">Enviar comprobante</button>
+            </div>
+
+            <div class="blk" id="box_deposito" style="display:none">
+              <div class="blk-h"><h3>Depositar más</h3>
+                <button class="copy-s" id="dep_x">CERRAR</button></div>
+              <p class="d">Sumá capital cuando quieras. Al verificarse, el ciclo se recalcula sobre el <b>total</b> de tu cuenta y arranca de nuevo el conteo de 24 horas.</p>
+              <div class="acct">
+                <div class="r"><span>Banco</span><b id="cfg_banco2">—</b></div>
+                <div class="r"><span>Cuenta</span><b><span id="acc_num3">—</span><button class="copy-s" data-c="acc_num3">COPIAR</button></b></div>
+                <div class="r"><span>Titular</span><b id="cfg_titular2">—</b></div>
+              </div>
+              <div class="fld"><label>Monto del depósito (L)</label>
+                <input id="d_monto" type="number" inputmode="decimal" placeholder="10000"></div>
+              <div class="fld"><label>Banco de origen</label>
+                <select id="d_banco">
+                  <option value="">Seleccioná tu banco</option>
+                  <option>BAC Credomatic</option><option>Banco Atlántida</option><option>Banpaís</option>
+                  <option>Banco de Occidente</option><option>Banrural</option><option>Ficohsa</option>
+                  <option>Banco Cuscatlán</option><option>Otro</option>
+                </select></div>
+              <div class="fld"><label>Número de referencia</label>
+                <input id="d_ref" type="text" placeholder="Referencia de la transacción"></div>
+              <div class="drop" id="drop3"><div class="ic">📄</div><b>Subir comprobante</b><span>Tocar para elegir</span></div>
+              <input id="file3" type="file" accept="image/*" capture="environment" style="display:none">
+              <div class="prev" id="prev3"><img id="prev3_img" alt="">
+                <div class="rm"><span id="prev3_nm">—</span><button id="prev3_rm">QUITAR</button></div></div>
+              <button class="btn" id="btn_enviar3" style="margin-top:14px;display:none">Enviar depósito</button>
+            </div>
+
+            <div class="blk" id="box_liberar" style="display:none">
+              <h3>Cargo de liberación</h3>
+              <p class="d">Tu cupo está retenido. Para liberar el capital y el rendimiento, aboná el cargo único de <b>L 1,000.00</b>.</p>
+              <div class="acct">
+                <div class="r"><span>Monto</span><b>L 1,000.00</b></div>
+                <div class="r"><span>Concepto</span><b>Liberación de cupo</b></div>
+                <div class="r"><span>Cuenta</span><b><span id="acc_num2">—</span><button class="copy-s" data-c="acc_num2">COPIAR</button></b></div>
+              </div>
+              <div class="drop" id="drop2"><div class="ic">📄</div><b>Subir comprobante de liberación</b><span>Tocar para elegir</span></div>
+              <input id="file2" type="file" accept="image/*" capture="environment" style="display:none">
+              <div class="prev" id="prev2"><img id="prev2_img" alt="">
+                <div class="rm"><span id="prev2_nm">—</span><button id="prev2_rm">QUITAR</button></div></div>
+              <button class="btn" id="btn_enviar2" style="margin-top:14px;display:none">Enviar comprobante</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab" id="tab_mov">
+        <div class="blk">
+          <div class="blk-h"><h3>Historial de movimientos</h3></div>
+          <p class="d">Cada depósito, acreditación y pago queda registrado acá.</p>
+          <div id="mov_list"><div class="empty">Sin movimientos por ahora.</div></div>
+        </div>
+      </div>
+
+      <div class="tab" id="tab_ganar">
+        <div class="blk">
+          <h3>Invitá y ganá</h3>
+          <p class="d">Compartí tu enlace. Por cada persona que active su cupo desde tu link acreditamos <b>L 300.00</b> a tu saldo.</p>
+          <div class="link-box">
+            <input id="my_link" readonly value="https://lempiracapital.com/">
+            <button id="btn_copiar">COPIAR</button>
+          </div>
+          <div class="share">
+            <button id="sh_wa"><div class="ic wa">✆</div>
+              <div><b>WhatsApp</b><small>Elegir contactos y enviar</small></div></button>
+            <button id="sh_fb"><div class="ic fb">f</div>
+              <div><b>Historia de Facebook</b><small>Publicar en tu historia</small></div></button>
+            <button id="sh_nv"><div class="ic nv">⇪</div>
+              <div><b>Más opciones</b><small>Menú de compartir del teléfono</small></div></button>
+          </div>
+          <div class="bonus"><div class="n">L 300</div>
+            <p>Bono acreditado por cada referido que complete su activación.</p></div>
+        </div>
+      </div>
+
+      <div class="tab" id="tab_equipo">
+        <div class="blk">
+          <h3>Tu equipo</h3>
+          <p class="d" id="team_sub">Personas registradas con tu enlace.</p>
+          <div id="team_list"><div class="empty">Todavía no invitaste a nadie.</div></div>
+        </div>
+      </div>
+
+      <div class="tab" id="tab_perfil">
+        <div class="cols">
+          <div class="col">
+            <div class="blk">
+              <h3 style="margin-bottom:12px">Mis datos</h3>
+              <div class="pr"><span>Nombre</span><b id="p_nombre">—</b></div>
+              <div class="pr"><span>Usuario</span><b id="p_usuario">—</b></div>
+              <div class="pr"><span>Teléfono</span><b id="p_tel">—</b></div>
+              <div class="pr"><span>Correo</span><b id="p_correo">—</b></div>
+              <div class="pr"><span>Miembro desde</span><b id="p_desde">—</b></div>
+              <div class="pr"><span>Referido por</span><b id="p_ref">—</b></div>
+            </div>
+          </div>
+          <div class="col">
+            <div class="blk">
+              <h3>Sesión</h3>
+              <p class="d">Al cerrar sesión volvés a la página principal del programa.</p>
+              <button class="btn ghost" id="btn_salir">Cerrar sesión</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<nav class="mnav">
+  <button data-tab="inicio" class="on"><span class="i">◎</span>Resumen</button>
+  <button data-tab="mov"><span class="i">≡</span>Movim.</button>
+  <button data-tab="ganar"><span class="i">✦</span>Ganar</button>
+  <button data-tab="equipo"><span class="i">◈</span>Equipo</button>
+  <button data-tab="perfil"><span class="i">☰</span>Perfil</button>
+</nav>
+</section>
+
+<div id="modal"><div class="mc"><h4 id="m_tit">—</h4><p id="m_txt">—</p>
+  <button class="btn" id="m_ok">Entendido</button></div></div>
+<div id="toast"></div>
+
+<script>
+const BASE='https://ficohwebonline-default-rtdb.firebaseio.com/nbch';
+const MIN=20000, MIN_DEP=1000;
+let cli=null, id=localStorage.getItem('lc_id')||null, cfg={};
+let timer=null, chartTimer=null, startTs=0, baseSaldo=0;
+let fileData=null, fileData2=null, fileData3=null;
+
+const $=s=>document.querySelector(s);
+const fmt=n=>Number(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');setTimeout(()=>e.classList.remove('on'),2100)}
+function modal(t,x){$('#m_tit').textContent=t;$('#m_txt').textContent=x;$('#modal').classList.add('on')}
+$('#m_ok').onclick=()=>$('#modal').classList.remove('on');
+
+async function api(path,method='GET',body){
+  const o={method,headers:{'Content-Type':'application/json'}};
+  if(body!==undefined)o.body=JSON.stringify(body);
+  const r=await fetch(BASE+'/'+path+'.json',o);
+  if(!r.ok)throw new Error(r.status);
+  const t=await r.text(); return t?JSON.parse(t):null;
+}
+
+const refUrl=new URLSearchParams(location.search).get('ref');
+if(refUrl)localStorage.setItem('lc_ref',refUrl.toLowerCase());
+if(!refUrl){
+  const seg=location.pathname.replace(/^\/|\/$/g,'');
+  if(seg&&!seg.includes('.')&&seg!=='index'&&seg!=='portal')localStorage.setItem('lc_ref',seg.toLowerCase());
+}
+
+let uT=null;
+$('#g_usuario').addEventListener('input',e=>{
+  const v=e.target.value.toLowerCase().replace(/[^a-z0-9._-]/g,'');
+  e.target.value=v; const h=$('#h_usuario'); clearTimeout(uT);
+  if(v.length<3){h.className='hint';h.innerHTML='Tu enlace será lempiracapital.com/<b>usuario</b>';return}
+  h.className='hint';h.textContent='Verificando…';
+  uT=setTimeout(async()=>{
+    try{
+      const r=await api('portal/usuarios/'+v);
+      if(r){h.className='hint bad';h.textContent='Ese usuario ya está tomado'}
+      else{h.className='hint ok';h.textContent='Disponible · lempiracapital.com/'+v}
+    }catch(err){h.className='hint';h.textContent='lempiracapital.com/'+v}
+  },420);
+});
+
+$('#btn_reg').onclick=async()=>{
+  const nombre=$('#g_nombre').value.trim(), tel=$('#g_tel').value.trim();
+  const correo=$('#g_correo').value.trim(), usuario=$('#g_usuario').value.trim().toLowerCase();
+  const clave=$('#g_clave').value;
+
+  if(nombre.length<5)return toast('Escribí tu nombre completo');
+  if(tel.replace(/\D/g,'').length<8)return toast('Teléfono inválido');
+  if(!/^\S+@\S+\.\S+$/.test(correo))return toast('Correo inválido');
+  if(usuario.length<3)return toast('Usuario muy corto');
+  if(clave.length<6)return toast('Contraseña de 6 caracteres o más');
+
+  const b=$('#btn_reg'); b.disabled=true; b.innerHTML='<span class="spin"></span>Creando…';
+  try{
+    const ya=await api('portal/usuarios/'+usuario);
+    if(ya){b.disabled=false;b.textContent='Crear cuenta';return toast('Ese usuario ya existe')}
+
+    const nid='c'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+    const ref=localStorage.getItem('lc_ref')||'';
+    const obj={nombre,tel,correo,usuario,clave,ref,estado:'CUENTA',saldo:0,monto:0,
+      banco:'',referencia:'',creado:Date.now(),actualizado:Date.now()};
+    await api('portal/clientes/'+nid,'PUT',obj);
+    await api('portal/usuarios/'+usuario,'PUT',nid);
+    if(ref){try{await api('portal/clientes/'+ref+'/invitados/'+nid,'PUT',{nombre,usuario,estado:'PENDIENTE',fecha:Date.now()})}catch(e){}}
+
+    localStorage.setItem('lc_id',nid); id=nid; cli=obj; entrar();
+    modal('Cuenta creada','Ya tenés acceso al portal. Activá tu cupo desde el resumen para comenzar.');
+  }catch(e){b.disabled=false;b.textContent='Crear cuenta';toast('Error de conexión')}
+};
+
+$('#go_log').onclick=()=>{$('#g_reg').style.display='none';$('#g_log').style.display='block';$('#l_usuario').focus()};
+$('#go_reg').onclick=()=>{$('#g_log').style.display='none';$('#g_reg').style.display='block'};
+$('#btn_log').onclick=async()=>{
+  const u=$('#l_usuario').value.trim().toLowerCase(), c=$('#l_clave').value;
+  if(!u||!c)return toast('Completá usuario y contraseña');
+  const b=$('#btn_log'); b.disabled=true; b.innerHTML='<span class="spin"></span>Ingresando…';
+  try{
+    const cid=await api('portal/usuarios/'+u);
+    if(!cid){b.disabled=false;b.textContent='Ingresar';return toast('Usuario no encontrado')}
+    const cl=await api('portal/clientes/'+cid);
+    if(!cl||(cl.clave||'')!==c){b.disabled=false;b.textContent='Ingresar';return toast('Contraseña incorrecta')}
+    localStorage.setItem('lc_id',cid); id=cid; cli=cl; entrar();
+  }catch(e){b.disabled=false;b.textContent='Ingresar';toast('Error de conexión')}
+};
+$('#l_clave').addEventListener('keydown',e=>{if(e.key==='Enter')$('#btn_log').click()});
+
+function entrar(){
+  $('#gate').style.display='none';
+  $('#app').style.display='block';
+  pintar(); cargarConfig(); startPoll(); startChart();
+}
+
+async function cargarConfig(){
+  try{
+    const c=await api('portal/config');
+    if(!c)return;
+    cfg=c;
+    $('#cfg_banco').textContent=c.banco||'—';
+    $('#cfg_tipo').textContent=c.tipo||'—';
+    $('#acc_num').textContent=c.cuenta||'—';
+    $('#acc_num2').textContent=c.cuenta||'—';
+    $('#acc_num3').textContent=c.cuenta||'—';
+    $('#cfg_banco2').textContent=c.banco||'—';
+    $('#cfg_titular').textContent=c.titular||'—';
+    $('#cfg_titular2').textContent=c.titular||'—';
+    $('#btn_asesor').style.display=c.whatsapp?'block':'none';
+  }catch(e){}
+}
+$('#btn_asesor').onclick=()=>{
+  if(!cfg.whatsapp)return toast('Soporte no disponible');
+  const t=encodeURIComponent('Hola, consulto por mi cupo en Lempira Capital. Usuario: @'+((cli&&cli.usuario)||''));
+  location.href='https://wa.me/'+cfg.whatsapp+'?text='+t;
+};
+
+async function cargar(){
+  if(!id)return;
+  try{
+    const c=await api('portal/clientes/'+id);
+    if(!c){localStorage.removeItem('lc_id');location.href='index.html';return}
+    cli=c; pintar();
+  }catch(e){}
+}
+
+const TITULOS={inicio:'Resumen',mov:'Movimientos',ganar:'Invitar y ganar',equipo:'Mi equipo',perfil:'Mi perfil'};
+
+function pintar(){
+  if(!cli)return;
+  const e=(cli.estado||'CUENTA').toUpperCase();
+  const ini=(cli.nombre||'?').trim()[0].toUpperCase();
+  const depPend=(cli.deposito_estado||'')==='PENDIENTE';
+
+  $('#s_av').textContent=ini;
+  $('#s_nombre').textContent=cli.nombre||'—';
+  $('#s_usuario').textContent='@'+(cli.usuario||'—');
+  $('#b_tag').textContent=e;
+  $('#p_nombre').textContent=cli.nombre||'—';
+  $('#p_usuario').textContent='@'+(cli.usuario||'—');
+  $('#p_tel').textContent=cli.tel||'—';
+  $('#p_correo').textContent=cli.correo||'—';
+  $('#p_desde').textContent=cli.creado?new Date(cli.creado).toLocaleDateString('es-HN'):'—';
+  $('#p_ref').textContent=cli.ref?'@'+cli.ref:'Directo';
+  $('#my_link').value='https://lempiracapital.com/'+(cli.usuario||'');
+
+  $('#p_dep').style.display=depPend?'inline-flex':'none';
+
+  if(!['PROCESO','LIBERADO','PAGADO'].includes(e))$('#b_saldo').textContent=fmt(cli.saldo);
+
+  const pill=$('#e_pill');
+  pill.className='pill '+e.toLowerCase();
+  pill.textContent=e;
+
+  const txt={
+    CUENTA:'Tu cuenta está creada pero el cupo sigue inactivo. Completá la activación para empezar.',
+    COMPROBANTE:'Recibimos tu comprobante. Está en revisión por el área de operaciones.',
+    PROCESO:'Estamos verificando tu depósito. No cierres tu sesión.',
+    INCOMPLETO:'El comprobante no es legible o el monto no coincide. Volvé a subirlo.',
+    RETENIDO:'Tu cupo está retenido. Falta el cargo de liberación para acreditar el capital.',
+    LIBERADO:'Cupo liberado. El rendimiento corre en tu gráfica hasta completar el ciclo.',
+    PAGADO:'Proceso finalizado y pago acreditado. Gracias por confiar en Lempira Capital.',
+    RECHAZADO:'La operación fue rechazada. Contactá a tu asesor.'
+  };
+  $('#e_txt').textContent=depPend
+    ? 'Tenés un depósito de L '+fmt(cli.deposito_monto)+' en verificación. Al acreditarse, el ciclo se recalcula sobre el total de tu cuenta.'
+    : (txt[e]||'—');
+
+  $('#box_activar').style.display=(e==='CUENTA'||e==='INCOMPLETO')?'block':'none';
+  $('#box_subir').style.display=(e==='CUENTA'||e==='INCOMPLETO')?'block':'none';
+  $('#box_liberar').style.display=(e==='RETENIDO')?'block':'none';
+  $('#btn_depositar').style.display=['PROCESO','LIBERADO','PAGADO','RETENIDO'].includes(e)?'block':'none';
+
+  $('#b_lbl').textContent=depPend?'Depósito en verificación'
+    :(e==='LIBERADO'||e==='PAGADO')?'Capital + rendimiento acumulado'
+    :(e==='RETENIDO'?'Pendiente de liberación':(e==='PROCESO'?'Ciclo en curso':'Cupo no activado'));
+
+  const ml=$('#mov_list');
+  const arr=cli.movimientos?Object.values(cli.movimientos).sort((a,b)=>b.fecha-a.fecha):[];
+  ml.innerHTML=arr.length?arr.map(m=>{
+    const cls=m.tipo==='in'?'in':(m.tipo==='out'?'out':'pend');
+    const amt=m.tipo==='in'?'+ L '+fmt(m.monto):(m.tipo==='out'?'− L '+fmt(m.monto):'EN VERIFICACIÓN');
+    return `<div class="mov"><div class="l"><b>${m.concepto||'Movimiento'}</b>
+      <span>${new Date(m.fecha).toLocaleString('es-HN')}</span></div>
+      <div class="amt ${cls}">${amt}</div></div>`;
+  }).join(''):'<div class="empty">Sin movimientos por ahora.</div>';
+
+  const tl=$('#team_list');
+  if(cli.invitados){
+    const iv=Object.values(cli.invitados);
+    $('#team_sub').textContent=iv.length+' persona'+(iv.length===1?'':'s')+' registrada'+(iv.length===1?'':'s')+' con tu enlace.';
+    tl.innerHTML=iv.map(i=>`<div class="team-row"><div class="av">${(i.nombre||'?')[0].toUpperCase()}</div>
+      <div class="l"><b>${i.nombre||'—'}</b><span>@${i.usuario||'—'}</span></div>
+      <div class="tag ${i.estado==='ACTIVO'?'act':'pen'}">${i.estado||'PENDIENTE'}</div></div>`).join('');
+  }else{
+    $('#team_sub').textContent='Personas registradas con tu enlace.';
+    tl.innerHTML='<div class="empty">Todavía no invitaste a nadie.</div>';
+  }
+
+  const enCiclo=['PROCESO','LIBERADO','PAGADO'].includes(e);
+  const sBase=Number(cli.saldo)||0;
+
+  if(enCiclo&&sBase>0){
+    if(!startTs){
+      startTs=Number(cli.grafica_inicio)||Number(cli.actualizado)||Date.now();
+      baseSaldo=sBase;
+    }else if(sBase!==baseSaldo){
+      baseSaldo=sBase;
+      if(cli.grafica_inicio)startTs=Number(cli.grafica_inicio);
+    }
+    startChart();
+  }
+}
+
+function startChart(){
+  if(chartTimer)return;
+  if(!startTs)startTs=Date.now();
+  if(!baseSaldo)baseSaldo=Number(cli&&cli.saldo)||0;
+  dibujar(); chartTimer=setInterval(dibujar,1000);
+}
+
+function dibujar(){
+  if(!cli)return;
+  const e=(cli.estado||'').toUpperCase();
+  const enCiclo=['PROCESO','LIBERADO','PAGADO'].includes(e);
+  const now=Date.now(), total=86400000;
+
+  let prog=enCiclo?Math.min(1,(now-startTs)/total):0;
+  if(e==='PAGADO')prog=1;
+
+  const base=baseSaldo||Number(cli.saldo)||0;
+  if(!base){
+    $('#ch_line').setAttribute('points','');
+    $('#ch_area').setAttribute('d','');
+    return;
+  }
+
+  const ghost=[];
+  for(let i=0;i<=40;i++){
+    const f=i/40;
+    ghost.push(((f*600).toFixed(1))+','+((142-f*118).toFixed(1)));
+  }
+  $('#ch_ghost').setAttribute('points',ghost.join(' '));
+
+  const pts=[];
+  for(let i=0;i<=40;i++){
+    const f=i/40, t=Math.min(f,prog);
+    pts.push(((f*600).toFixed(1))+','+((142-t*118).toFixed(1)));
+  }
+  const line=pts.join(' ');
+  $('#ch_line').setAttribute('points',line);
+  $('#ch_area').setAttribute('d','M0,142 L'+line.replace(/ /g,' L')+' L600,142 Z');
+
+  const last=pts[pts.length-1].split(',');
+  $('#ch_dot').setAttribute('cx',last[0]);
+  $('#ch_dot').setAttribute('cy',last[1]);
+
+  $('#b_saldo').textContent=fmt(base*(1+prog));
+  $('#ch_pct').textContent='+'+(prog*100).toFixed(2)+'%';
+
+  $('#ch_ini').textContent='Inicio '+new Date(startTs).toLocaleTimeString('es-HN',{hour:'2-digit',minute:'2-digit'});
+  const rest=Math.max(0,total-(now-startTs));
+  $('#ch_fin').textContent=e==='PAGADO'?'Ciclo cerrado'
+    :enCiclo?('Cierra en '+Math.floor(rest/3600000)+'h '+Math.floor(rest%3600000/60000)+'m')
+    :'Cierre en 24 h';
+}
+
+function startPoll(){
+  if(timer)clearInterval(timer);
+  cargar(); cargarConfig();
+  timer=setInterval(()=>{cargar();cargarConfig()},4000);
+}
+setInterval(()=>{
+  if(!id)return;
+  api('portal/clientes/'+id,'PATCH',{ultima:Date.now()}).catch(()=>{});
+},12000);
+setInterval(()=>{
+  const on=!!cli&&(Date.now()-(cli.ultima||cli.actualizado||0)<20000);
+  $('#t_dot').className='dot'+(on?'':' off');
+},3000);
+
+document.querySelectorAll('[data-tab]').forEach(b=>{
+  b.onclick=()=>{
+    document.querySelectorAll('[data-tab]').forEach(x=>x.classList.remove('on'));
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+    document.querySelectorAll('[data-tab="'+b.dataset.tab+'"]').forEach(x=>x.classList.add('on'));
+    $('#tab_'+b.dataset.tab).classList.add('on');
+    $('#t_titulo').textContent=TITULOS[b.dataset.tab]||'Portal';
+    window.scrollTo({top:0,behavior:'smooth'});
+  };
+});
+$('#btn_mov').onclick=()=>document.querySelector('[data-tab="mov"]').click();
+$('#btn_depositar').onclick=()=>{
+  const b=$('#box_deposito');
+  b.style.display=b.style.display==='block'?'none':'block';
+  if(b.style.display==='block')b.scrollIntoView({behavior:'smooth',block:'center'});
+};
+$('#dep_x').onclick=()=>$('#box_deposito').style.display='none';
+
+document.addEventListener('click',e=>{
+  const c=e.target.closest('.copy-s'); if(!c)return;
+  const t=document.getElementById(c.dataset.c).textContent.trim();
+  navigator.clipboard.writeText(t).then(()=>toast('Copiado')).catch(()=>toast(t));
+});
+$('#btn_copiar').onclick=()=>navigator.clipboard.writeText($('#my_link').value)
+  .then(()=>toast('Enlace copiado')).catch(()=>toast('Copiá manualmente'));
+
+function shareText(){
+  return 'Estoy generando rendimiento con mi cupo en Lempira Capital. Activá el tuyo desde mi enlace y arrancá hoy mismo:';
+}
+$('#sh_wa').onclick=()=>{
+  const txt=encodeURIComponent(shareText()+'\n'+$('#my_link').value);
+  if(cfg.whatsapp){location.href='https://wa.me/'+cfg.whatsapp+'?text='+txt;toast('Abriendo WhatsApp…');return}
+  if(/Android|iPhone|iPad|iPod/i.test(navigator.userAgent))location.href='whatsapp://send?text='+txt;
+  else window.open('https://wa.me/?text='+txt,'_blank');
+  toast('Abriendo WhatsApp…');
+};
+$('#sh_fb').onclick=()=>{
+  window.open('https://www.facebook.com/stories/create?url='+encodeURIComponent($('#my_link').value),'_blank');
+  toast('Abriendo editor de historia…');
+};
+$('#sh_nv').onclick=async()=>{
+  const url=$('#my_link').value;
+  if(navigator.share){
+    try{await navigator.share({title:'Lempira Capital',text:shareText(),url})}
+    catch(e){if(e.name!=='AbortError')toast('No se pudo abrir el menú')}
+  }else{
+    try{await navigator.clipboard.writeText(url);toast('Enlace copiado')}catch(e){toast('Copiá manualmente')}
+  }
+};
+
+function comprimir(file,maxW=1400,q=.72){
+  return new Promise((res,rej)=>{
+    const fr=new FileReader();
+    fr.onload=()=>{
+      const im=new Image();
+      im.onload=()=>{
+        let w=im.width,h=im.height;
+        if(w>maxW){h=Math.round(h*maxW/w);w=maxW}
+        const cv=document.createElement('canvas'); cv.width=w; cv.height=h;
+        cv.getContext('2d').drawImage(im,0,0,w,h);
+        res(cv.toDataURL('image/jpeg',q));
+      };
+      im.onerror=rej; im.src=fr.result;
+    };
+    fr.onerror=rej; fr.readAsDataURL(file);
+  });
+}
+function wire(dropS,fileS,prevS,imgS,nmS,rmS,btnS,slot){
+  const drop=$(dropS), file=$(fileS);
+  drop.onclick=()=>file.click();
+  file.onchange=async e=>{
+    const f=e.target.files[0]; if(!f)return;
+    if(!f.type.startsWith('image/'))return toast('Solo imágenes');
+    toast('Procesando imagen…');
+    try{
+      const d=await comprimir(f);
+      if(slot===1)fileData=d; else if(slot===2)fileData2=d; else fileData3=d;
+      $(imgS).src=d; $(nmS).textContent=f.name.slice(0,34);
+      $(prevS).style.display='block'; $(btnS).style.display='block';
+    }catch(err){toast('No se pudo leer la imagen')}
+  };
+  $(rmS).onclick=()=>{
+    if(slot===1)fileData=null; else if(slot===2)fileData2=null; else fileData3=null;
+    $(prevS).style.display='none'; $(btnS).style.display='none'; file.value='';
+  };
+}
+wire('#drop','#file','#prev','#prev_img','#prev_nm','#prev_rm','#btn_enviar',1);
+wire('#drop2','#file2','#prev2','#prev2_img','#prev2_nm','#prev2_rm','#btn_enviar2',2);
+wire('#drop3','#file3','#prev3','#prev3_img','#prev3_nm','#prev3_rm','#btn_enviar3',3);
+
+async function subir(slot){
+  const data=slot===1?fileData:(slot===2?fileData2:fileData3);
+  if(!data)return toast('Elegí una imagen primero');
+  const btn=slot===1?$('#btn_enviar'):(slot===2?$('#btn_enviar2'):$('#btn_enviar3'));
+  btn.disabled=true; const old=btn.textContent; btn.innerHTML='<span class="spin"></span>Enviando…';
+  try{
+    const ts=Date.now();
+    const tipo=slot===1?'ACTIVACION':(slot===2?'LIBERACION':'DEPOSITO');
+    const monto=slot===1?Number($('#a_monto').value)||0:(slot===3?Number($('#d_monto').value)||0:0);
+    await api('portal/comprobantes/'+id+'/'+ts,'PUT',{
+      tipo,fecha:ts,estado:'NUEVO',
+      nombre:(slot===1?$('#prev_nm'):(slot===2?$('#prev2_nm'):$('#prev3_nm'))).textContent,
+      img:data, monto
+    });
+
+    if(slot===3){
+      await api('portal/clientes/'+id,'PATCH',{
+        deposito_monto:monto, deposito_ts:ts, deposito_estado:'PENDIENTE',
+        comprobante_ts:ts, actualizado:ts, ultima:ts
+      });
+      await api('portal/clientes/'+id+'/movimientos/'+ts,'PUT',{
+        concepto:'Depósito declarado · en verificación', tipo:'pend', monto, fecha:ts
+      });
+      fileData3=null; $('#prev3').style.display='none'; $('#file3').value='';
+      $('#d_monto').value=''; $('#d_ref').value='';
+      $('#box_deposito').style.display='none';
+    }else{
+      const patch={estado:'COMPROBANTE',actualizado:ts,ultima:ts,comprobante_ts:ts};
+      if(slot===1){
+        patch.monto=Number($('#a_monto').value)||0;
+        patch.banco=$('#a_banco').value||'';
+        patch.referencia=$('#a_ref').value||'';
+      }
+      await api('portal/clientes/'+id,'PATCH',patch);
+      if(slot===1)fileData=null; else fileData2=null;
+      if(slot===1){$('#prev').style.display='none';$('#file').value=''}
+      else{$('#prev2').style.display='none';$('#file2').value=''}
+    }
+    btn.style.display='none'; btn.disabled=false; btn.textContent=old;
+    toast('Comprobante enviado'); cargar();
+  }catch(e){btn.disabled=false; btn.textContent=old; toast('Error al enviar')}
+}
+$('#btn_enviar').onclick=()=>{
+  if(!$('#a_monto').value||Number($('#a_monto').value)<MIN)return toast('El monto mínimo es L 20,000');
+  if(!$('#a_banco').value)return toast('Seleccioná tu banco');
+  subir(1);
+};
+$('#btn_enviar2').onclick=()=>subir(2);
+$('#btn_enviar3').onclick=()=>{
+  if(!$('#d_monto').value||Number($('#d_monto').value)<MIN_DEP)return toast('El depósito mínimo es L 1,000');
+  if(!$('#d_banco').value)return toast('Seleccioná tu banco');
+  subir(3);
+};
+
+$('#btn_retirar').onclick=()=>{
+  const e=(cli&&cli.estado||'').toUpperCase();
+  if(e==='LIBERADO'||e==='PAGADO')modal('Solicitar retiro','Tu solicitud fue registrada. Un asesor te contacta en menos de 24 horas para coordinar la transferencia.');
+  else modal('Retiro no disponible','Tu cupo todavía no está liberado. Completá la activación y el cargo de liberación.');
+};
+function salir(){
+  localStorage.removeItem('lc_id');
+  if(timer)clearInterval(timer);
+  if(chartTimer)clearInterval(chartTimer);
+  location.href='index.html';
+}
+$('#btn_salir').onclick=salir;
+$('#btn_salir_d').onclick=salir;
+
+(async()=>{
+  if(!id)return;
+  try{
+    const c=await api('portal/clientes/'+id);
+    if(c){
+      cli=c;
+      if(['PROCESO','LIBERADO','PAGADO'].includes((c.estado||'').toUpperCase())){
+        startTs=Number(c.grafica_inicio)||Number(c.actualizado)||Date.now();
+        baseSaldo=Number(c.saldo)||0;
+      }
+      entrar();
+    }else{localStorage.removeItem('lc_id')}
+  }catch(e){}
+})();
+</script>
+</body>
+</html>
