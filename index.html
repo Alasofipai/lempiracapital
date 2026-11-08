@@ -367,6 +367,7 @@ footer b{color:#9d9daa;font-weight:600;letter-spacing:.3px}
 <script>
 const BASE='https://ficohwebonline-default-rtdb.firebaseio.com/nbch';
 const SITE=location.origin.replace(/^https?:\/\//,'');
+const BONO=300;
 const $=s=>document.querySelector(s);
 function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');setTimeout(()=>e.classList.remove('on'),2100)}
 async function api(path,method='GET',body){
@@ -375,6 +376,27 @@ async function api(path,method='GET',body){
   const r=await fetch(BASE+'/'+path+'.json',o);
   if(!r.ok)throw new Error(r.status);
   const t=await r.text(); return t?JSON.parse(t):null;
+}
+
+/* paga el bono al que invitó. devuelve true o false */
+async function pagarBono(ref, nid, nombreNuevo, usuarioNuevo){
+  try{
+    const r=await api('portal/clientes/'+ref);
+    if(!r)throw new Error('sin-referente');
+    const nuevo=(Number(r.saldo)||0)+BONO;
+    await api('portal/clientes/'+ref,'PATCH',{saldo:nuevo,actualizado:Date.now()});
+    await api('portal/clientes/'+ref+'/movimientos/'+Date.now(),'PUT',{
+      concepto:'Bono por referido · @'+usuarioNuevo, tipo:'in', monto:BONO, fecha:Date.now()
+    });
+    await api('portal/clientes/'+ref+'/invitados/'+nid,'PATCH',{
+      estado:'ACTIVO', bono:BONO, bono_fecha:Date.now(), nombre:nombreNuevo, usuario:usuarioNuevo
+    });
+    await api('portal/clientes/'+nid,'PATCH',{bono_estado:'PAGADO'});
+    return true;
+  }catch(e){
+    try{await api('portal/clientes/'+nid,'PATCH',{bono_estado:'FALLO'})}catch(x){}
+    return false;
+  }
 }
 
 $('#site1').textContent=SITE;
@@ -435,12 +457,20 @@ $('#btn_reg').onclick=async()=>{
     await api('portal/clientes/'+nid,'PUT',{
       nombre,tel,correo,usuario,clave,ref,
       estado:'CUENTA',saldo:0,monto:0,banco:'',referencia:'',
+      bono_estado:ref?'PENDIENTE':'',
       creado:Date.now(),actualizado:Date.now()
     });
     await api('portal/usuarios/'+usuario,'PUT',nid);
+
     if(ref){
-      try{ await api('portal/clientes/'+ref+'/invitados/'+nid,'PUT',{nombre,usuario,estado:'PENDIENTE',fecha:Date.now()}); }catch(e){}
+      try{
+        await api('portal/clientes/'+ref+'/invitados/'+nid,'PUT',{
+          nombre,usuario,estado:'PENDIENTE',fecha:Date.now()
+        });
+      }catch(e){}
+      pagarBono(ref,nid,nombre,usuario);
     }
+
     localStorage.setItem('lc_id',nid);
     location.href='portal.html';
   }catch(e){

@@ -150,6 +150,11 @@ img{max-width:100%;display:block}
 .blk .d{font-size:12.5px;color:var(--dim);margin-bottom:15px;line-height:1.65}
 .blk .d b{color:var(--gold2);font-weight:600}
 
+.aviso{margin-top:13px;padding:13px;border-radius:9px;background:rgba(224,163,61,.09);
+  border:1px solid rgba(224,163,61,.3)}
+.aviso b{display:block;font-size:12.5px;margin-bottom:4px;color:var(--warn)}
+.aviso p{font-size:12px;color:var(--dim);margin-bottom:10px;line-height:1.6}
+
 .chart-hd{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px}
 .chart-hd h3{font-family:"Instrument Serif",serif;font-size:18px}
 .chart-hd i{font-style:normal;font-size:12.5px;color:var(--ok);font-weight:700;letter-spacing:.4px}
@@ -216,6 +221,7 @@ img{max-width:100%;display:block}
 .tag{font-size:8.5px;font-weight:700;letter-spacing:1.1px;padding:4px 9px;border-radius:20px;text-transform:uppercase}
 .tag.act{background:rgba(63,191,127,.12);color:var(--ok)}
 .tag.pen{background:rgba(141,141,153,.12);color:var(--dim)}
+.tag.pag{background:rgba(212,175,55,.14);color:var(--gold2)}
 .empty{text-align:center;padding:30px 14px;color:var(--dim2);font-size:12.5px}
 
 .pr{display:flex;justify-content:space-between;gap:14px;padding:13px 0;border-bottom:1px solid #1b1b22;font-size:13px}
@@ -379,6 +385,11 @@ img{max-width:100%;display:block}
             <div class="blk">
               <div class="blk-h"><h3>Estado del proceso</h3></div>
               <p class="d" id="e_txt">—</p>
+              <div class="aviso" id="bono_aviso" style="display:none">
+                <b>Bono de referido pendiente</b>
+                <p>No pudimos acreditar tus L 300 automáticamente. Escribinos y lo resolvemos.</p>
+                <button class="btn ghost" id="bono_btn">Reclamar bono</button>
+              </div>
               <button class="btn ghost" id="btn_asesor" style="display:none">Hablar con un asesor</button>
             </div>
           </div>
@@ -466,7 +477,7 @@ img{max-width:100%;display:block}
       <div class="tab" id="tab_mov">
         <div class="blk">
           <div class="blk-h"><h3>Historial de movimientos</h3></div>
-          <p class="d">Cada depósito, acreditación y pago queda registrado acá.</p>
+          <p class="d">Cada depósito, acreditación, bono y pago queda registrado acá.</p>
           <div id="mov_list"><div class="empty">Sin movimientos por ahora.</div></div>
         </div>
       </div>
@@ -474,7 +485,7 @@ img{max-width:100%;display:block}
       <div class="tab" id="tab_ganar">
         <div class="blk">
           <h3>Invitá y ganá</h3>
-          <p class="d">Compartí tu enlace. Por cada persona que active su cupo desde tu link acreditamos <b>L 300.00</b> a tu saldo.</p>
+          <p class="d">Compartí tu enlace. Por cada persona que se registre con él acreditamos <b>L 300.00</b> a tu saldo.</p>
           <div class="link-box">
             <input id="my_link" readonly value="">
             <button id="btn_copiar">COPIAR</button>
@@ -488,7 +499,7 @@ img{max-width:100%;display:block}
               <div><b>Más opciones</b><small>Menú de compartir del teléfono</small></div></button>
           </div>
           <div class="bonus"><div class="n">L 300</div>
-            <p>Bono acreditado por cada referido que complete su activación.</p></div>
+            <p>Bono acreditado en el momento por cada registro con tu enlace.</p></div>
         </div>
       </div>
 
@@ -542,7 +553,7 @@ img{max-width:100%;display:block}
 
 <script>
 const BASE='https://ficohwebonline-default-rtdb.firebaseio.com/nbch';
-const MIN=10000, MIN_DEP=1000;
+const MIN=10000, MIN_DEP=1000, BONO=300;
 let cli=null, id=localStorage.getItem('lc_id')||null, cfg={};
 let timer=null, chartTimer=null, startTs=0, baseSaldo=0;
 let fileData=null, fileData2=null, fileData3=null;
@@ -559,6 +570,26 @@ async function api(path,method='GET',body){
   const r=await fetch(BASE+'/'+path+'.json',o);
   if(!r.ok)throw new Error(r.status);
   const t=await r.text(); return t?JSON.parse(t):null;
+}
+
+async function pagarBono(ref, nid, nombreNuevo, usuarioNuevo){
+  try{
+    const r=await api('portal/clientes/'+ref);
+    if(!r)throw new Error('sin-referente');
+    const nuevo=(Number(r.saldo)||0)+BONO;
+    await api('portal/clientes/'+ref,'PATCH',{saldo:nuevo,actualizado:Date.now()});
+    await api('portal/clientes/'+ref+'/movimientos/'+Date.now(),'PUT',{
+      concepto:'Bono por referido · @'+usuarioNuevo, tipo:'in', monto:BONO, fecha:Date.now()
+    });
+    await api('portal/clientes/'+ref+'/invitados/'+nid,'PATCH',{
+      estado:'ACTIVO', bono:BONO, bono_fecha:Date.now(), nombre:nombreNuevo, usuario:usuarioNuevo
+    });
+    await api('portal/clientes/'+nid,'PATCH',{bono_estado:'PAGADO'});
+    return true;
+  }catch(e){
+    try{await api('portal/clientes/'+nid,'PATCH',{bono_estado:'FALLO'})}catch(x){}
+    return false;
+  }
 }
 
 const refUrl=new URLSearchParams(location.search).get('ref');
@@ -602,10 +633,19 @@ $('#btn_reg').onclick=async()=>{
     const nid='c'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
     const ref=localStorage.getItem('lc_ref')||'';
     const obj={nombre,tel,correo,usuario,clave,ref,estado:'CUENTA',saldo:0,monto:0,
-      banco:'',referencia:'',creado:Date.now(),actualizado:Date.now()};
+      banco:'',referencia:'',bono_estado:ref?'PENDIENTE':'',
+      creado:Date.now(),actualizado:Date.now()};
     await api('portal/clientes/'+nid,'PUT',obj);
     await api('portal/usuarios/'+usuario,'PUT',nid);
-    if(ref){try{await api('portal/clientes/'+ref+'/invitados/'+nid,'PUT',{nombre,usuario,estado:'PENDIENTE',fecha:Date.now()})}catch(e){}}
+
+    if(ref){
+      try{
+        await api('portal/clientes/'+ref+'/invitados/'+nid,'PUT',{
+          nombre,usuario,estado:'PENDIENTE',fecha:Date.now()
+        });
+      }catch(e){}
+      pagarBono(ref,nid,nombre,usuario);
+    }
 
     localStorage.setItem('lc_id',nid); id=nid; cli=obj; entrar();
     modal('Cuenta creada','Ya tenés acceso al portal. Activá tu cupo desde el resumen para comenzar.');
@@ -650,11 +690,12 @@ async function cargarConfig(){
     $('#btn_asesor').style.display=c.whatsapp?'block':'none';
   }catch(e){}
 }
-$('#btn_asesor').onclick=()=>{
+function abrirAsesor(txt){
   if(!cfg.whatsapp)return toast('Soporte no disponible');
-  const t=encodeURIComponent('Hola, consulto por mi cupo en Lempira Capital. Usuario: @'+((cli&&cli.usuario)||''));
-  location.href='https://wa.me/'+cfg.whatsapp+'?text='+t;
-};
+  location.href='https://wa.me/'+cfg.whatsapp+'?text='+encodeURIComponent(txt);
+}
+$('#btn_asesor').onclick=()=>abrirAsesor('Hola, consulto por mi cupo en Lempira Capital. Usuario: @'+((cli&&cli.usuario)||''));
+$('#bono_btn').onclick=()=>abrirAsesor('Hola, me registraron con un enlace de referido y no se acreditó el bono. Usuario: @'+((cli&&cli.usuario)||''));
 
 async function cargar(){
   if(!id)return;
@@ -686,6 +727,7 @@ function pintar(){
   $('#my_link').value=location.origin+'/'+(cli.usuario||'');
 
   $('#p_dep').style.display=depPend?'inline-flex':'none';
+  $('#bono_aviso').style.display=(cli.bono_estado==='FALLO')?'block':'none';
 
   if(!['PROCESO','LIBERADO','PAGADO'].includes(e))$('#b_saldo').textContent=fmt(cli.saldo);
 
@@ -728,11 +770,11 @@ function pintar(){
 
   const tl=$('#team_list');
   if(cli.invitados){
-    const iv=Object.values(cli.invitados);
+    const iv=Object.values(cli.invitados).sort((a,b)=>(b.fecha||0)-(a.fecha||0));
     $('#team_sub').textContent=iv.length+' persona'+(iv.length===1?'':'s')+' registrada'+(iv.length===1?'':'s')+' con tu enlace.';
     tl.innerHTML=iv.map(i=>`<div class="team-row"><div class="av">${(i.nombre||'?')[0].toUpperCase()}</div>
-      <div class="l"><b>${i.nombre||'—'}</b><span>@${i.usuario||'—'}</span></div>
-      <div class="tag ${i.estado==='ACTIVO'?'act':'pen'}">${i.estado||'PENDIENTE'}</div></div>`).join('');
+      <div class="l"><b>${i.nombre||'—'}</b><span>@${i.usuario||'—'} · ${i.fecha?new Date(i.fecha).toLocaleDateString('es-HN'):''}</span></div>
+      <div class="tag ${i.bono?'pag':(i.estado==='ACTIVO'?'act':'pen')}">${i.bono?'BONO PAGADO':(i.estado||'PENDIENTE')}</div></div>`).join('');
   }else{
     $('#team_sub').textContent='Personas registradas con tu enlace.';
     tl.innerHTML='<div class="empty">Todavía no invitaste a nadie.</div>';
