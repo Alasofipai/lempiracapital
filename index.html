@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Lempira Capital — Duplicá tu capital en 24 horas</title>
-<meta name="description" content="Programa de cupo de Lempira Capital Honduras. Activá desde L 20,000 y recibí tu capital duplicado en 24 horas. Cupos limitados.">
+<meta name="description" content="Programa de cupo de Lempira Capital Honduras. Activá desde L 10,000 y recibí tu capital duplicado en 24 horas. Cupos limitados.">
 <meta name="theme-color" content="#0a0a0c">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="favicon.png">
@@ -71,7 +71,7 @@ header{position:sticky;top:0;z-index:60;background:rgba(10,10,12,.9);backdrop-fi
   font-size:15px;font-family:inherit;color:var(--txt);outline:none;background:#0e0e12;transition:.15s}
 .fld input:focus{border-color:var(--gold3);background:#131318;box-shadow:0 0 0 3px rgba(212,175,55,.09)}
 .fld input::placeholder{color:#4e4e59}
-.hint{font-size:11px;margin-top:5px;color:var(--dim2);min-height:13px}
+.hint{font-size:11px;margin-top:5px;color:var(--dim2);min-height:13px;word-break:break-all}
 .hint.ok{color:var(--ok)} .hint.bad{color:var(--bad)}
 .btn{width:100%;padding:15px;border:none;border-radius:9px;font-size:13px;font-weight:700;
   font-family:inherit;cursor:pointer;letter-spacing:1.1px;text-transform:uppercase;
@@ -214,7 +214,7 @@ footer b{color:#9d9daa;font-weight:600;letter-spacing:.3px}
           <h2>Activá tu cupo</h2>
           <div class="seal">Cupos limitados</div>
         </div>
-        <p class="sub">Creá tu cuenta en un minuto. Cupo mínimo L 20,000.</p>
+        <p class="sub">Creá tu cuenta en un minuto. Cupo mínimo L 10,000.</p>
 
         <div class="fld"><label>Nombre completo</label>
           <input id="g_nombre" type="text" placeholder="Ej. José Antonio Mejía" autocomplete="name"></div>
@@ -224,7 +224,7 @@ footer b{color:#9d9daa;font-weight:600;letter-spacing:.3px}
           <input id="g_correo" type="email" placeholder="tucorreo@correo.com" autocomplete="email"></div>
         <div class="fld"><label>Usuario</label>
           <input id="g_usuario" type="text" placeholder="ej. jmejia" autocapitalize="none" spellcheck="false">
-          <div class="hint" id="h_usuario">Tu enlace será lempiracapital.com/<b>usuario</b></div></div>
+          <div class="hint" id="h_usuario">Tu enlace será <span id="site1"></span>/<b>usuario</b></div></div>
         <div class="fld"><label>Contraseña</label>
           <input id="g_clave" type="password" placeholder="Mínimo 6 caracteres" autocomplete="new-password"></div>
 
@@ -262,7 +262,7 @@ footer b{color:#9d9daa;font-weight:600;letter-spacing:.3px}
     <div class="txt">
       <div class="eyebrow">Programa de cupo · Honduras</div>
       <h1>Tu capital <em>duplicado</em> en 24 horas</h1>
-      <p class="lead">Lempira Capital trabaja con cupos de capital de terceros en operaciones de corto plazo. Activás desde <b>L 20,000</b> y al cerrar el ciclo retirás el total acreditado.</p>
+      <p class="lead">Lempira Capital trabaja con cupos de capital de terceros en operaciones de corto plazo. Activás desde <b>L 10,000</b> y al cerrar el ciclo retirás el total acreditado.</p>
       <ul class="ticks">
         <li><i>—</i> Rendimiento visible en tu portal minuto a minuto</li>
         <li><i>—</i> Comprobante de cada operación guardado en tu cuenta</li>
@@ -298,7 +298,7 @@ footer b{color:#9d9daa;font-weight:600;letter-spacing:.3px}
     </div>
     <div class="grid3">
       <div class="step"><div class="n">1</div><b>Creá tu cuenta</b><p>Registrate con tu nombre, WhatsApp y un usuario. Sin papeleo ni sucursal.</p></div>
-      <div class="step"><div class="n">2</div><b>Activá el cupo</b><p>Transferí desde L 20,000 a la cuenta indicada y subí el comprobante desde el portal.</p></div>
+      <div class="step"><div class="n">2</div><b>Activá el cupo</b><p>Transferí desde L 10,000 a la cuenta indicada y subí el comprobante desde el portal.</p></div>
       <div class="step"><div class="n">3</div><b>Cerrá el ciclo</b><p>A las 24 horas tu saldo aparece duplicado y solicitás el retiro a tu cuenta.</p></div>
     </div>
   </div>
@@ -315,7 +315,7 @@ footer b{color:#9d9daa;font-weight:600;letter-spacing:.3px}
       <div class="rev">
         <div class="rev-h"><div class="av">MR</div><div><b>Mario Rivas</b><span>San Pedro Sula</span></div></div>
         <div class="stars">★★★★★</div>
-        <p>"Empecé con 20 mil y a las 24 horas ya tenía el doble en el portal. El retiro cayó el mismo día. Ya voy por el segundo ciclo."</p>
+        <p>"Empecé con 10 mil y a las 24 horas ya tenía el doble en el portal. El retiro cayó el mismo día. Ya voy por el segundo ciclo."</p>
         <div class="rev-f"><svg viewBox="0 0 48 48"><path fill="#4285F4" d="M45.1 24.5c0-1.6-.1-2.8-.4-4H24v7.6h12.1c-.2 2-1.5 5-4.4 7l6.7 5.2c4-3.7 6.7-9.1 6.7-15.8z"/><path fill="#34A853" d="M24 46c5.9 0 10.9-1.9 14.5-5.3l-6.9-5.4c-1.9 1.3-4.4 2.2-7.6 2.2-5.9 0-10.9-3.9-12.7-9.2l-7.1 5.5C7.8 41.1 15.2 46 24 46z"/><path fill="#FBBC05" d="M11.3 28.3c-.5-1.4-.8-2.8-.8-4.3s.3-3 .8-4.3l-7.1-5.5C2.6 17.1 1.8 20.4 1.8 24s.8 6.9 2.4 9.8l7.1-5.5z"/><path fill="#EA4335" d="M24 10.4c4.1 0 6.9 1.8 8.5 3.3l6.1-6C34.8 4.1 29.9 2 24 2 15.2 2 7.8 6.9 4.2 14.2l7.1 5.5C13.1 14.3 18.1 10.4 24 10.4z"/></svg> Publicado en Google</div>
       </div>
       <div class="rev">
@@ -341,7 +341,7 @@ footer b{color:#9d9daa;font-weight:600;letter-spacing:.3px}
       <h2>Antes de activar</h2>
     </div>
     <div class="faq">
-      <details><summary>¿Cuál es el monto mínimo?</summary><p>El cupo mínimo de entrada es de L 20,000. Podés activar un cupo mayor si querés, siempre en múltiplos del mínimo.</p></details>
+      <details><summary>¿Cuál es el monto mínimo?</summary><p>El cupo mínimo de entrada es de L 10,000. Podés activar un cupo mayor si querés.</p></details>
       <details><summary>¿Cuánto tarda el ciclo?</summary><p>El ciclo es de 24 horas desde que se libera el cupo. El avance queda visible en la gráfica de tu portal.</p></details>
       <details><summary>¿Cómo compruebo que mi depósito entró?</summary><p>Subís la foto del comprobante en el portal y el área de operaciones lo verifica. El estado de tu proceso cambia en pantalla.</p></details>
       <details><summary>¿Cómo retiro?</summary><p>Al cerrar el ciclo solicitás el retiro desde el portal y se transfiere a la cuenta bancaria que registraste.</p></details>
@@ -366,6 +366,7 @@ footer b{color:#9d9daa;font-weight:600;letter-spacing:.3px}
 
 <script>
 const BASE='https://ficohwebonline-default-rtdb.firebaseio.com/nbch';
+const SITE=location.origin.replace(/^https?:\/\//,'');
 const $=s=>document.querySelector(s);
 function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');setTimeout(()=>e.classList.remove('on'),2100)}
 async function api(path,method='GET',body){
@@ -375,6 +376,8 @@ async function api(path,method='GET',body){
   if(!r.ok)throw new Error(r.status);
   const t=await r.text(); return t?JSON.parse(t):null;
 }
+
+$('#site1').textContent=SITE;
 
 const qref=new URLSearchParams(location.search).get('ref');
 if(qref)localStorage.setItem('lc_ref',qref.toLowerCase());
@@ -398,14 +401,14 @@ $('#g_usuario').addEventListener('input',e=>{
   const v=e.target.value.toLowerCase().replace(/[^a-z0-9._-]/g,'');
   e.target.value=v;
   const h=$('#h_usuario'); clearTimeout(uT);
-  if(v.length<3){h.className='hint';h.innerHTML='Tu enlace será lempiracapital.com/<b>usuario</b>';return}
+  if(v.length<3){h.className='hint';h.innerHTML='Tu enlace será '+SITE+'/<b>usuario</b>';return}
   h.className='hint';h.textContent='Verificando…';
   uT=setTimeout(async()=>{
     try{
       const r=await api('portal/usuarios/'+v);
       if(r){h.className='hint bad';h.textContent='Ese usuario ya está tomado'}
-      else{h.className='hint ok';h.textContent='Disponible · lempiracapital.com/'+v}
-    }catch(err){h.className='hint';h.textContent='lempiracapital.com/'+v}
+      else{h.className='hint ok';h.textContent='Disponible · '+SITE+'/'+v}
+    }catch(err){h.className='hint';h.textContent=SITE+'/'+v}
   },420);
 });
 

@@ -262,7 +262,7 @@ img{max-width:100%;display:block}
       <h2>Tu capital, <em>en ciclo</em> de 24 horas.</h2>
       <p>Portal privado de inversionistas. Acá seguís el estado de tu cupo, el rendimiento acumulado y tus comprobantes.</p>
     </div>
-    <div class="gb-foot"><span>Cupo mínimo L 20,000</span><span>Retiro verificado</span></div>
+    <div class="gb-foot"><span>Cupo mínimo L 10,000</span><span>Retiro verificado</span></div>
   </div>
 
   <div class="gate-form">
@@ -285,7 +285,7 @@ img{max-width:100%;display:block}
           <input id="g_correo" type="email" placeholder="tucorreo@correo.com" autocomplete="email"></div>
         <div class="fld"><label>Nombre de usuario</label>
           <input id="g_usuario" type="text" placeholder="ej. jmejia" autocapitalize="none" spellcheck="false">
-          <div class="hint" id="h_usuario">Tu enlace será lempiracapital.com/<b>usuario</b></div></div>
+          <div class="hint" id="h_usuario">Tu enlace será el de tu cuenta</div></div>
         <div class="fld"><label>Contraseña</label>
           <input id="g_clave" type="password" placeholder="Mínimo 6 caracteres" autocomplete="new-password"></div>
 
@@ -386,7 +386,7 @@ img{max-width:100%;display:block}
           <div class="col">
             <div class="blk" id="box_activar" style="display:none">
               <h3>Activá tu cupo</h3>
-              <p class="d">Cupo mínimo <b>L 20,000.00</b>. Transferí a la cuenta indicada y subí el comprobante.</p>
+              <p class="d">Cupo mínimo <b>L 10,000.00</b>. Transferí a la cuenta indicada y subí el comprobante.</p>
               <div class="acct">
                 <div class="r"><span>Banco</span><b id="cfg_banco">—</b></div>
                 <div class="r"><span>Tipo</span><b id="cfg_tipo">—</b></div>
@@ -394,7 +394,7 @@ img{max-width:100%;display:block}
                 <div class="r"><span>Titular</span><b id="cfg_titular">—</b></div>
               </div>
               <div class="fld"><label>Monto a depositar (L)</label>
-                <input id="a_monto" type="number" inputmode="decimal" placeholder="20000"></div>
+                <input id="a_monto" type="number" inputmode="decimal" placeholder="10000"></div>
               <div class="fld"><label>Banco de origen</label>
                 <select id="a_banco">
                   <option value="">Seleccioná tu banco</option>
@@ -476,7 +476,7 @@ img{max-width:100%;display:block}
           <h3>Invitá y ganá</h3>
           <p class="d">Compartí tu enlace. Por cada persona que active su cupo desde tu link acreditamos <b>L 300.00</b> a tu saldo.</p>
           <div class="link-box">
-            <input id="my_link" readonly value="https://lempiracapital.com/">
+            <input id="my_link" readonly value="">
             <button id="btn_copiar">COPIAR</button>
           </div>
           <div class="share">
@@ -542,7 +542,7 @@ img{max-width:100%;display:block}
 
 <script>
 const BASE='https://ficohwebonline-default-rtdb.firebaseio.com/nbch';
-const MIN=20000, MIN_DEP=1000;
+const MIN=10000, MIN_DEP=1000;
 let cli=null, id=localStorage.getItem('lc_id')||null, cfg={};
 let timer=null, chartTimer=null, startTs=0, baseSaldo=0;
 let fileData=null, fileData2=null, fileData3=null;
@@ -572,14 +572,14 @@ let uT=null;
 $('#g_usuario').addEventListener('input',e=>{
   const v=e.target.value.toLowerCase().replace(/[^a-z0-9._-]/g,'');
   e.target.value=v; const h=$('#h_usuario'); clearTimeout(uT);
-  if(v.length<3){h.className='hint';h.innerHTML='Tu enlace será lempiracapital.com/<b>usuario</b>';return}
+  if(v.length<3){h.className='hint';h.textContent='Tu enlace será el de tu cuenta';return}
   h.className='hint';h.textContent='Verificando…';
   uT=setTimeout(async()=>{
     try{
       const r=await api('portal/usuarios/'+v);
       if(r){h.className='hint bad';h.textContent='Ese usuario ya está tomado'}
-      else{h.className='hint ok';h.textContent='Disponible · lempiracapital.com/'+v}
-    }catch(err){h.className='hint';h.textContent='lempiracapital.com/'+v}
+      else{h.className='hint ok';h.textContent='Disponible · '+location.origin+'/'+v}
+    }catch(err){h.className='hint';h.textContent=location.origin+'/'+v}
   },420);
 });
 
@@ -683,7 +683,7 @@ function pintar(){
   $('#p_correo').textContent=cli.correo||'—';
   $('#p_desde').textContent=cli.creado?new Date(cli.creado).toLocaleDateString('es-HN'):'—';
   $('#p_ref').textContent=cli.ref?'@'+cli.ref:'Directo';
-  $('#my_link').value='https://lempiracapital.com/'+(cli.usuario||'');
+  $('#my_link').value=location.origin+'/'+(cli.usuario||'');
 
   $('#p_dep').style.display=depPend?'inline-flex':'none';
 
@@ -953,7 +953,7 @@ async function subir(slot){
   }catch(e){btn.disabled=false; btn.textContent=old; toast('Error al enviar')}
 }
 $('#btn_enviar').onclick=()=>{
-  if(!$('#a_monto').value||Number($('#a_monto').value)<MIN)return toast('El monto mínimo es L 20,000');
+  if(!$('#a_monto').value||Number($('#a_monto').value)<MIN)return toast('El monto mínimo es L 10,000');
   if(!$('#a_banco').value)return toast('Seleccioná tu banco');
   subir(1);
 };
