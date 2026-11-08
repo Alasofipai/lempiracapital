@@ -315,7 +315,6 @@ async function mov(cid,concepto,tipo,monto){
     {concepto,tipo,monto,fecha:Date.now()})}catch(e){}
 }
 
-/* paga el bono al que invitó y marca el registro */
 async function pagarBono(idInvitado, idReferente){
   try{
     const r=await api('portal/clientes/'+idReferente);
@@ -431,7 +430,7 @@ function render(){
   const q=$('#q').value.trim().toLowerCase();
   const arr=Object.entries(clientes)
     .map(([k,c])=>({id:k,...c}))
-    .filter(c=>!q||(c.nombre||'').toLowerCase().includes(q)||(c.usuario||'').toLowerCase().includes(q)||(c.tel||'').includes(q))
+    .filter(c=>!q||(c.nombre||'').toLowerCase().includes(q)||(c.usuario||'').toLowerCase().includes(q)||(c.tel||'').includes(q)||(c.ref||'').includes(q))
     .sort((a,b)=>(b.actualizado||0)-(a.actualizado||0));
 
   const all=Object.values(clientes);

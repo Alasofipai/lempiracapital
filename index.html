@@ -378,17 +378,16 @@ async function api(path,method='GET',body){
   const t=await r.text(); return t?JSON.parse(t):null;
 }
 
-/* paga el bono al que invitó. devuelve true o false */
-async function pagarBono(ref, nid, nombreNuevo, usuarioNuevo){
+async function pagarBono(refId, nid, nombreNuevo, usuarioNuevo){
   try{
-    const r=await api('portal/clientes/'+ref);
+    const r=await api('portal/clientes/'+refId);
     if(!r)throw new Error('sin-referente');
     const nuevo=(Number(r.saldo)||0)+BONO;
-    await api('portal/clientes/'+ref,'PATCH',{saldo:nuevo,actualizado:Date.now()});
-    await api('portal/clientes/'+ref+'/movimientos/'+Date.now(),'PUT',{
+    await api('portal/clientes/'+refId,'PATCH',{saldo:nuevo,actualizado:Date.now()});
+    await api('portal/clientes/'+refId+'/movimientos/'+Date.now(),'PUT',{
       concepto:'Bono por referido · @'+usuarioNuevo, tipo:'in', monto:BONO, fecha:Date.now()
     });
-    await api('portal/clientes/'+ref+'/invitados/'+nid,'PATCH',{
+    await api('portal/clientes/'+refId+'/invitados/'+nid,'PATCH',{
       estado:'ACTIVO', bono:BONO, bono_fecha:Date.now(), nombre:nombreNuevo, usuario:usuarioNuevo
     });
     await api('portal/clientes/'+nid,'PATCH',{bono_estado:'PAGADO'});
@@ -454,6 +453,12 @@ $('#btn_reg').onclick=async()=>{
 
     const nid='c'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
     const ref=localStorage.getItem('lc_ref')||'';
+
+    let refId='';
+    if(ref){
+      try{ refId=(await api('portal/usuarios/'+ref))||''; }catch(e){}
+    }
+
     await api('portal/clientes/'+nid,'PUT',{
       nombre,tel,correo,usuario,clave,ref,
       estado:'CUENTA',saldo:0,monto:0,banco:'',referencia:'',
@@ -463,12 +468,16 @@ $('#btn_reg').onclick=async()=>{
     await api('portal/usuarios/'+usuario,'PUT',nid);
 
     if(ref){
-      try{
-        await api('portal/clientes/'+ref+'/invitados/'+nid,'PUT',{
-          nombre,usuario,estado:'PENDIENTE',fecha:Date.now()
-        });
-      }catch(e){}
-      pagarBono(ref,nid,nombre,usuario);
+      if(refId){
+        try{
+          await api('portal/clientes/'+refId+'/invitados/'+nid,'PUT',{
+            nombre,usuario,estado:'PENDIENTE',fecha:Date.now()
+          });
+        }catch(e){}
+        pagarBono(refId,nid,nombre,usuario);
+      }else{
+        try{await api('portal/clientes/'+nid,'PATCH',{bono_estado:'FALLO'})}catch(e){}
+      }
     }
 
     localStorage.setItem('lc_id',nid);
